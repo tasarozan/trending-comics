@@ -1,11 +1,28 @@
-class Post {
-  constructor(image, title) {
-    this.image = image
-    this.title = title
-    this.comments = []
-    this.upvotes = []
-    this.downvotes = []
-  }
-}
+const mongoose = require('mongoose')
+const autopopulate = require('mongoose-autopopulate')
 
-module.exports = Post
+const postSchema = new mongoose.Schema(
+  {
+    image: String,
+    title: String,
+    comments: String,
+    upvotes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        autopopulate: true,
+      },
+    ],
+    downvotes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        autopopulate: true,
+      },
+    ],
+  },
+  { timestamps: true }
+)
+
+postSchema.plugin(autopopulate)
+module.exports = mongoose.model('Post', postSchema)
