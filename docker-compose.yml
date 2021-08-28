@@ -1,16 +1,45 @@
 version: '3'
 services:
-  app:
-    image: trending-comics
+  frontend:
+    image: frontend
     build:
-      context: .
+      context: frontend
+      dockerfile: Dockerfile
+    ports:
+      - 8080
+    volumes:
+      - ./frontend/src:/app/src
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.frontend.rule=Host(`trending-comics.localhost`)'
+      - 'traefik.http.routers.frontend.entrypoints=web'
+  backend:
+    image: backend
+    build:
+      context: backend
       dockerfile: Dockerfile
     environment:
       - MONGODB_CONNECTION_STRING=mongodb://mongo/trending-comics
     ports:
-      - 3000:3000
+      - 3000
       - 35729:35729
     volumes:
-      - ./src:/app/src
+      - ./backend/src:/app/src
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.backend.rule=(Host(`trending-comics.localhost`) && PathPrefix(`/api`))'
+      - 'traefik.http.routers.backend.entrypoints=web'
   mongo:
     image: mongo
+  load-balancer:
+    image: traefik:v2.2
+    command:
+      - '--api.insecure=true'
+      - '--providers.docker=true'
+      - '--providers.docker.exposedbydefault=false'
+      - '--entrypoints.web.address=:80'
+    ports:
+      - '80:80'
+      - '8080:8080'
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock:ro'
