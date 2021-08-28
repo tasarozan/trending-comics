@@ -1,0 +1,16 @@
+version: '3'
+services:
+  app:
+    image: trending-comics
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - MONGODB_CONNECTION_STRING=mongodb://mongo/trending-comics
+    ports:
+      - 3000:3000
+      - 35729:35729
+    volumes:
+      - ./src:/app/src
+  mongo:
+    image: mongo
