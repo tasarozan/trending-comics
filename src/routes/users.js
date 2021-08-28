@@ -5,8 +5,8 @@ const router = express.Router()
 const User = require('../models/user')
 const Post = require('../models/post')
 
-router.get('/', (req, res) => {
-  res.send('heyyy')
+router.get('/', async (req, res) => {
+  res.send(await User.find({}))
 })
 
 router.get('/init', async (req, res) => {
